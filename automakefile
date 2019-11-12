@@ -1,0 +1,114 @@
+#!/bin/bash
+## EPITECH PROJECT, 2018
+## automakefile
+## File description:
+## automakefile
+##
+
+if [ $# != 1 ];then
+    exit 84
+fi
+File=$1
+if [ ! -e $File ];then
+    exit 84
+fi
+ProjDir=`grep "PROJECT_DIR;" $1 | cut -c13-`
+if [ -z $ProjDir ];then
+    exit 84
+fi
+
+if [ "$ProjDir" != "SYN_automakefile_2017/" ];then    
+    MAKE="$ProjDir""Makefile"
+else
+    MAKE="Makefile"
+fi
+if [ -e $MAKE ];then
+    rm -rf $MAKE
+fi
+
+Source=`grep "source_filename;" $1 | cut -c17-`
+SRCDIR=`grep "SOURCES_DIR;" $1 | cut -c13-`
+EXC=`grep 'EXEC;' $1 | cut -c6-`
+CC=`grep 'CC;' $1 | cut -c4-`
+HeadDir=`grep "HEADERS_DIR;" $1 | cut -c13-`
+LibDir=`grep "LIBS_DIR;" $1 | cut -c10-`
+CFLAG=`grep "CFLAGS;" $1 | cut -c8-`
+LFLAG=`grep "LDFLAGS;" $1 | cut -c9-`
+
+if [ "$ProjDir" != "SYN_automakefile_2017/" ];then
+    cd $ProjDir
+fi
+touch Makefile
+
+if [ ! -z $EXC ];then
+    echo -ne "NAME\t= " >> Makefile
+    echo "$EXC" >> Makefile
+    echo -ne '\n' >> Makefile
+fi
+
+echo -ne "CC\t= " >> Makefile
+if [ ! -z "$CC" ];then
+    echo "$CC" >> Makefile
+    echo -ne '\n' >> Makefile
+else
+    echo "gcc" >> Makefile
+    echo -ne '\n' >> Makefile
+fi
+
+echo -e "RM\t= rm -rf" >> Makefile
+
+echo -ne "\nSRCS\t= " >> Makefile
+for CN in $Source ; do
+    if [ ! -z "$SRCDIR" ];then
+	echo -n "$SRCDIR" >> Makefile
+    fi
+    echo -n "$CN " >> Makefile
+done
+
+if [ ! -z $CFLAG ];then
+    echo -ne "\nCFLAGS = " >> Makefile
+    echo "$CFLAG" >> Makefile
+fi
+if [ ! -z $LFLAG ];then
+    echo -n "LDFLAGS = " >> Makefile
+    echo "$LFLAG" >> Makefile
+fi
+
+echo -ne "\n\nall: " >> Makefile
+if [ ! -z $EXC ];then
+    echo "\$(NAME)" >> Makefile
+    echo -ne "\n\$(NAME): \$(SRCS)\n\t " >> Makefile
+else
+    echo -ne "\t\$(SRCS)\n\t" >> Makefile
+fi
+echo -n "\$(CC) " >> Makefile
+if [ ! -z $EXC ];then
+    echo -n "\$(NAME) " >> Makefile
+fi
+echo -n "\$(SRCS) " >> Makefile
+if [ ! -z $CFLAG ];then
+    echo -n " \$(CFLAGS)" >> Makefile
+fi
+if [ ! -z "$HeadDir" ];then
+    echo -n " -I " >> Makefile
+    echo -n "$HeadDir" >> Makefile
+fi
+if [ ! -z $LibDir ];then
+    echo -n " -L ./" >> Makefile
+    echo -n "$LibDir" >> Makefile
+fi
+if [ ! -z $LFLAG ];then
+    echo " \$(LDFLAGS)" >> Makefile
+else
+    echo -ne '\n' >> Makefile
+fi
+
+echo -e "\nclean:\n\t\$(RM) *~" >> Makefile
+echo -ne "\nfclean: clean\n\t\$(RM) " >> Makefile
+if [ ! -z $EXC ];then
+    echo "\$(NAME)" >> Makefile
+else
+    echo "a.out" >> Makefile
+fi
+echo -e "\nre: fclean all" >> Makefile
+echo -e "\n.PHONY: all clean fclean re" >> Makefile
